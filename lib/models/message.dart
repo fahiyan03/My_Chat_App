@@ -8,22 +8,11 @@ class Message {
     required this.isMine,
   });
 
-  /// ID of the message
   final String id;
-
-  /// ID of the user who posted the message
   final String profileId;
-
-  /// ID of the room the message belongs to
   final String roomId;
-
-  /// Text content of the message
   final String content;
-
-  /// Date and time when the message was created
   final DateTime createdAt;
-
-  /// Whether the message is sent by the user or not.
   final bool isMine;
 
   Map<String, dynamic> toMap() {
@@ -37,26 +26,30 @@ class Message {
   Message.fromMap({
     required Map<String, dynamic> map,
     required String myUserId,
-  })  : id = map['id'],
-        roomId = map['room_id'],
-        profileId = map['profile_id'],
-        content = map['content'],
-        createdAt = DateTime.parse(map['created_at']),
+  })  : id = map['id'].toString(),
+        roomId = map['room_id'].toString(),
+        profileId = map['profile_id'].toString(),
+        content = map['content'] ?? '',
+        createdAt = map['created_at'] != null
+            ? (map['created_at'] is String
+            ? DateTime.parse(map['created_at'])
+            : map['created_at'])
+            : DateTime.now(),
         isMine = myUserId == map['profile_id'];
 
   Message copyWith({
     String? id,
-    String? userId,
+    String? profileId,
     String? roomId,
-    String? text,
+    String? content,
     DateTime? createdAt,
     bool? isMine,
   }) {
     return Message(
       id: id ?? this.id,
-      profileId: userId ?? profileId,
+      profileId: profileId ?? this.profileId,
       roomId: roomId ?? this.roomId,
-      content: text ?? content,
+      content: content ?? this.content,
       createdAt: createdAt ?? this.createdAt,
       isMine: isMine ?? this.isMine,
     );
