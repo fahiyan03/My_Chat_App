@@ -19,23 +19,4 @@ samples, guidance on mobile development, and a full API reference.
 - Join the discussion and conversation on https://flutlab.io/residents
 
 
-# SQL
 
-
-
--- Function to create a new row in profiles table upon signup
--- Also copies the username value from metadata
-create or replace function handle_new_user() returns trigger as $$
-    begin
-        insert into public.profiles(id, username)
-        values(new.id, new.raw_user_meta_data->>'username');
-
-        return new;
-    end;
-$$ language plpgsql security definer;
-
--- Trigger to call `handle_new_user` when new user signs up
-create trigger on_auth_user_created
-    after insert on auth.users
-    for each row
-    execute function handle_new_user();
