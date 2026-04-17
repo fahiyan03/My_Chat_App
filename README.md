@@ -166,3 +166,41 @@ create or replace function create_new_room(other_user_id uuid) returns uuid as $
 $$ language plpgsql security definer;
 
 ```
+
+## Supabase Database Setup (User-Owned Message Updates)
+
+```sql
+
+-- Allow users to update their own messages
+CREATE POLICY "Users can update own messages" ON public.messages
+FOR UPDATE
+TO authenticated
+USING (auth.uid() = profile_id)
+WITH CHECK (auth.uid() = profile_id);
+
+```
+
+
+## Supabase Database Setup (Self-Deletion Policy for Messages)
+
+```sql
+-- Allow users to delete their own messages
+CREATE POLICY "Users can delete own messages" ON public.messages
+FOR DELETE
+TO authenticated
+USING (auth.uid() = profile_id);
+
+```
+
+## Supabase Database Setup (Replicate Messages Events in Realtime Publication)
+
+```sql
+-- 1. This ensures the DELETE event includes the ID so the recipient knows what to remove
+ALTER TABLE public.messages REPLICA IDENTITY FULL;
+
+-- 2. This "refreshes" the publication settings for just this table
+-- Use this specific syntax to avoid the "already a member" error
+ALTER PUBLICATION supabase_realtime SET TABLE messages;
+
+
+```
